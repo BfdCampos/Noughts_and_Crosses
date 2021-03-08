@@ -1,16 +1,123 @@
-# This is a sample Python script.
+#Noughts and Crosses game in Python
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+board = [' ' for x in range(10)]
+
+def insertLetter(letter, pos):
+    board[pos] = letter
+
+def spaceIsFree(pos):
+    return board[pos] == ' '
+
+def printBoard(board):
+    print('   |   |')
+    print(' ' + board[1] + ' | ' + board[2] + ' | ' + board[3])
+    print('   |   |')
+    print('-----------')
+    print('   |   |')
+    print(' ' + board[4] + ' | ' + board[5] + ' | ' + board[6])
+    print('   |   |')
+    print('-----------')
+    print('   |   |')
+    print(' ' + board[7] + ' | ' + board[8] + ' | ' + board[9])
+    print('   |   |')
+
+#'bo' = board and 'le' = letter
+def isWinner(bo, le):
+    return (bo[7] == le and bo[8] == le and bo[9] == le) or (bo[4] == le and bo[5] == le and bo[6] == le) or (bo[1] == le and bo[2] == le and bo[3] == le) or (bo[1] == le and bo[4] == le and bo[7] == le) or (bo[2] == le and bo[5] == le and bo[8] == le) or (bo[3] == le and bo[6] == le and bo[9] == le) or (bo[1] == le and bo[5] == le and bo[9] == le) or (bo[3] == le and bo[5] == le and bo[7] == le)
+
+def playerMove():
+    run = True
+    while run:
+        move = input('Please select a position to place a Cross \'X\' (1-9): ')
+        try:
+            move = int(move)
+            if move > 0 and move < 10:
+                if spaceIsFree(move):
+                    run = False
+                    insertLetter('X', move)
+                else:
+                    print('Sorry, this space is occupied. Please choose another space!')
+            else:
+                print('Please type a number within the range!')
+        except:
+            print('Please type a number!')
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def compMove():
+    possibleMoves = [x for x, letter in enumerate(board) if letter == ' ' and x != 0]
+    move = 0
+
+    #'let' = letter the computer will check
+    for let in ['O', 'X']:
+        for i in possibleMoves:
+            boardCopy = board[:]
+            boardCopy[i] = let
+            if isWinner(boardCopy, let):
+                move = i
+                return move
+
+    cornersOpen = []
+    for i in possibleMoves:
+        if i in [1,3,7,9]:
+            cornersOpen.append(i)
+    if len(cornersOpen) > 0:
+        move = selectRandom(cornersOpen)
+        return move
+
+    if 5 in possibleMoves:
+        move = 5
+        return move
+
+    edgesOpen = []
+    for i in possibleMoves:
+        if i in [2, 4, 6, 8]:
+            edgesOpen.append(i)
+    if len(edgesOpen) > 0:
+        move = selectRandom(edgesOpen)
+
+    return move
+
+def selectRandom(li):
+    import random
+    ln = len(li)
+    r = random.randrange(0, ln)
+    return li[r]
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def isBoardFull(board):
+    if board.count(' ') > 1:
+        return False
+    else:
+        return True
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+def main():
+    print('* Noughts and Crosses by BfdCampos * \n')
+    printBoard(board)
+
+    while not(isBoardFull(board)):
+        if not (isWinner(board, 'O')):
+            playerMove()
+            printBoard(board)
+        else:
+            print('Too bad, O\'s win this time!')
+            break
+
+        if not (isWinner(board, 'X')):
+            move = compMove()
+            if move == 0:
+                print('\n Tie Game! \n')
+            else:
+                insertLetter('O', move)
+                print('Computer placed an \'O\' in position ', move, ':')
+                printBoard(board)
+        else:
+            print('\n X\'s win this time - congratulations! \n')
+            break
+
+    if isBoardFull(board):
+        print('Play again? \n')
+
+while True:
+    input('Press Enter for new game! \n')
+    board = [' ' for x in range(10)]
+    main()
